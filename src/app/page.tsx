@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { createClient } from '@/lib/supabase'
 import { Database } from '@/types/database'
 import { useAuth } from '@/contexts/AuthContext'
@@ -85,7 +85,7 @@ const sampleAssets: Asset[] = [
   }
 ]
 
-export default function HomePage() {
+function HomePageContent() {
   const { user } = useAuth()
   const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState<'24h' | 'week' | 'all'>('24h')
@@ -380,5 +380,17 @@ function AssetCard({ asset, onUpdate }: { asset: Asset; onUpdate: () => void }) 
         </div>
       </div>
     </div>
+  )
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+      </div>
+    }>
+      <HomePageContent />
+    </Suspense>
   )
 }
