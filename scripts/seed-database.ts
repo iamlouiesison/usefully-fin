@@ -12,21 +12,21 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 const sampleUsers = [
   {
-    id: 'demo-user-1',
+    id: '550e8400-e29b-41d4-a716-446655440001',
     email: 'demo@usefully.com',
     name: 'Demo User',
     bio: 'Building useful tools and sharing knowledge',
     useful_score: 5
   },
   {
-    id: 'demo-user-2', 
+    id: '550e8400-e29b-41d4-a716-446655440002', 
     email: 'designer@usefully.com',
     name: 'Design Pro',
     bio: 'UI/UX designer passionate about great user experiences',
     useful_score: 8
   },
   {
-    id: 'demo-user-3',
+    id: '550e8400-e29b-41d4-a716-446655440003',
     email: 'backend@usefully.com', 
     name: 'Backend Dev',
     bio: 'Full-stack developer focused on scalable solutions',
@@ -36,8 +36,8 @@ const sampleUsers = [
 
 const sampleAssets = [
   {
-    id: 'asset-1',
-    owner_id: 'demo-user-1',
+    id: '660e8400-e29b-41d4-a716-446655440001',
+    owner_id: '550e8400-e29b-41d4-a716-446655440001',
     url: 'https://github.com/vercel/next.js',
     title: 'Next.js - The React Framework',
     why_useful: 'Essential framework for building modern React applications with server-side rendering and static generation.',
@@ -45,8 +45,8 @@ const sampleAssets = [
     image_url: 'https://nextjs.org/static/twitter-image.png'
   },
   {
-    id: 'asset-2',
-    owner_id: 'demo-user-2',
+    id: '660e8400-e29b-41d4-a716-446655440002',
+    owner_id: '550e8400-e29b-41d4-a716-446655440002',
     url: 'https://tailwindcss.com',
     title: 'Tailwind CSS - Utility-First CSS Framework',
     why_useful: 'Rapidly build modern websites without ever leaving your HTML. Highly customizable and responsive.',
@@ -54,8 +54,8 @@ const sampleAssets = [
     image_url: 'https://tailwindcss.com/_next/static/media/tailwindcss-mark.3c5441fc7a190fb1800d4a5c7f07ba4b1345a9c8.svg'
   },
   {
-    id: 'asset-3',
-    owner_id: 'demo-user-3',
+    id: '660e8400-e29b-41d4-a716-446655440003',
+    owner_id: '550e8400-e29b-41d4-a716-446655440003',
     url: 'https://supabase.com',
     title: 'Supabase - Open Source Firebase Alternative',
     why_useful: 'Complete backend solution with database, auth, and real-time subscriptions. Perfect for rapid development.',
@@ -63,8 +63,8 @@ const sampleAssets = [
     image_url: 'https://supabase.com/images/brand-assets/supabase-logo-wordmark--dark.svg'
   },
   {
-    id: 'asset-4',
-    owner_id: 'demo-user-1',
+    id: '660e8400-e29b-41d4-a716-446655440004',
+    owner_id: '550e8400-e29b-41d4-a716-446655440001',
     url: 'https://typescriptlang.org',
     title: 'TypeScript - JavaScript with syntax for types',
     why_useful: 'Adds static typing to JavaScript, making code more reliable and easier to maintain.',
@@ -72,8 +72,8 @@ const sampleAssets = [
     image_url: 'https://www.typescriptlang.org/images/branding/logo.svg'
   },
   {
-    id: 'asset-5',
-    owner_id: 'demo-user-2',
+    id: '660e8400-e29b-41d4-a716-446655440005',
+    owner_id: '550e8400-e29b-41d4-a716-446655440002',
     url: 'https://figma.com',
     title: 'Figma - Collaborative interface design tool',
     why_useful: 'Real-time collaborative design tool that makes it easy to create, share, and iterate on designs.',
@@ -83,15 +83,15 @@ const sampleAssets = [
 ]
 
 const sampleVotes = [
-  { user_id: 'demo-user-1', asset_id: 'asset-2' },
-  { user_id: 'demo-user-1', asset_id: 'asset-3' },
-  { user_id: 'demo-user-2', asset_id: 'asset-1' },
-  { user_id: 'demo-user-2', asset_id: 'asset-3' },
-  { user_id: 'demo-user-3', asset_id: 'asset-1' },
-  { user_id: 'demo-user-3', asset_id: 'asset-2' },
-  { user_id: 'demo-user-3', asset_id: 'asset-4' },
-  { user_id: 'demo-user-1', asset_id: 'asset-5' },
-  { user_id: 'demo-user-2', asset_id: 'asset-4' }
+  { user_id: '550e8400-e29b-41d4-a716-446655440001', asset_id: '660e8400-e29b-41d4-a716-446655440002' },
+  { user_id: '550e8400-e29b-41d4-a716-446655440001', asset_id: '660e8400-e29b-41d4-a716-446655440003' },
+  { user_id: '550e8400-e29b-41d4-a716-446655440002', asset_id: '660e8400-e29b-41d4-a716-446655440001' },
+  { user_id: '550e8400-e29b-41d4-a716-446655440002', asset_id: '660e8400-e29b-41d4-a716-446655440003' },
+  { user_id: '550e8400-e29b-41d4-a716-446655440003', asset_id: '660e8400-e29b-41d4-a716-446655440001' },
+  { user_id: '550e8400-e29b-41d4-a716-446655440003', asset_id: '660e8400-e29b-41d4-a716-446655440002' },
+  { user_id: '550e8400-e29b-41d4-a716-446655440003', asset_id: '660e8400-e29b-41d4-a716-446655440004' },
+  { user_id: '550e8400-e29b-41d4-a716-446655440001', asset_id: '660e8400-e29b-41d4-a716-446655440005' },
+  { user_id: '550e8400-e29b-41d4-a716-446655440002', asset_id: '660e8400-e29b-41d4-a716-446655440004' }
 ]
 
 async function seedDatabase() {
