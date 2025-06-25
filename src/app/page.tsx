@@ -1,103 +1,186 @@
-import Image from "next/image";
+'use client'
 
-export default function Home() {
+import { useState } from 'react'
+import { createClient } from '@/lib/supabase'
+import { Database } from '@/types/database'
+
+type Asset = Database['public']['Tables']['assets']['Row'] & {
+  users: Database['public']['Tables']['users']['Row']
+  useful_count: number
+  is_useful: boolean
+}
+
+export default function HomePage() {
+  const [activeTab, setActiveTab] = useState<'24h' | 'week' | 'all'>('24h')
+  const [assets, setAssets] = useState<Asset[]>([])
+  const [loading, setLoading] = useState(true)
+
+  const fetchAssets = async (period: '24h' | 'week' | 'all') => {
+    setLoading(true)
+    const supabase = createClient()
+    
+    let query = supabase
+      .from('assets')
+      .select(`
+        *,
+        users (id, name, avatar_url),
+        useful_votes (user_id)
+      `)
+      .order('created_at', { ascending: false })
+
+    if (period === '24h') {
+      const yesterday = new Date()
+      yesterday.setDate(yesterday.getDate() - 1)
+      query = query.gte('created_at', yesterday.toISOString())
+    } else if (period === 'week') {
+      const lastWeek = new Date()
+      lastWeek.setDate(lastWeek.getDate() - 7)
+      query = query.gte('created_at', lastWeek.toISOString())
+    }
+
+    const { data, error } = await query
+
+    if (data) {
+      const assetsWithCounts = data.map(asset => ({
+        ...asset,
+        useful_count: asset.useful_votes?.length || 0,
+        is_useful: false // Will be updated with user's vote status
+      }))
+      setAssets(assetsWithCounts)
+    }
+    setLoading(false)
+  }
+
+  const handleTabChange = (tab: '24h' | 'week' | 'all') => {
+    setActiveTab(tab)
+    fetchAssets(tab)
+  }
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <h1 className="text-4xl font-bold text-gray-900 mb-8">Usefully</h1>
+        
+        {/* Feed Tabs */}
+        <div className="flex space-x-1 bg-white rounded-lg p-1 mb-8 shadow-sm">
+          <button
+            onClick={() => handleTabChange('24h')}
+            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+              activeTab === '24h'
+                ? 'bg-blue-500 text-white'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            24-Hour Useful
+          </button>
+          <button
+            onClick={() => handleTabChange('week')}
+            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+              activeTab === 'week'
+                ? 'bg-blue-500 text-white'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
           >
-            Read our docs
-          </a>
+            Weekly Useful
+          </button>
+          <button
+            onClick={() => handleTabChange('all')}
+            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+              activeTab === 'all'
+                ? 'bg-blue-500 text-white'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            All-Time Useful
+          </button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {/* Assets Feed */}
+        <div className="space-y-6">
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+            </div>
+          ) : assets.length === 0 ? (
+            <div className="text-center py-12 text-gray-500">
+              No assets found for this period.
+            </div>
+          ) : (
+            assets.map((asset) => (
+              <AssetCard key={asset.id} asset={asset} />
+            ))
+          )}
+        </div>
+      </div>
     </div>
-  );
+  )
+}
+
+function AssetCard({ asset }: { asset: Asset }) {
+  const handleUseful = async () => {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) {
+      // Show auth modal
+      return
+    }
+
+    if (asset.is_useful) {
+      await supabase
+        .from('useful_votes')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('asset_id', asset.id)
+    } else {
+      await supabase
+        .from('useful_votes')
+        .insert({ user_id: user.id, asset_id: asset.id })
+    }
+  }
+
+  return (
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="flex items-start space-x-4">
+        {asset.image_url && (
+          <img
+            src={asset.image_url}
+            alt={asset.title}
+            className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
+          />
+        )}
+        <div className="flex-1 min-w-0">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <a href={asset.url} target="_blank" rel="noopener noreferrer" className="hover:text-blue-600">
+              {asset.title}
+            </a>
+          </h3>
+          <p className="text-gray-600 mb-3">{asset.why_useful}</p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                {asset.tag}
+              </span>
+              <div className="flex items-center space-x-2 text-sm text-gray-500">
+                <span>by {asset.users.name || 'Anonymous'}</span>
+                <span>•</span>
+                <span>{new Date(asset.created_at).toLocaleDateString()}</span>
+              </div>
+            </div>
+            <button
+              onClick={handleUseful}
+              className={`flex items-center space-x-1 px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                asset.is_useful
+                  ? 'bg-green-100 text-green-800'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              <span>👍</span>
+              <span>{asset.useful_count}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }
