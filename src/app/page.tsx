@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase'
 import { Database } from '@/types/database'
+import { useAuth } from '@/contexts/AuthContext'
 
 type Asset = Database['public']['Tables']['assets']['Row'] & {
   users: Database['public']['Tables']['users']['Row']
@@ -11,6 +12,7 @@ type Asset = Database['public']['Tables']['assets']['Row'] & {
 }
 
 export default function HomePage() {
+  const { user } = useAuth()
   const [activeTab, setActiveTab] = useState<'24h' | 'week' | 'all'>('24h')
   const [assets, setAssets] = useState<Asset[]>([])
   const [loading, setLoading] = useState(true)
@@ -44,7 +46,7 @@ export default function HomePage() {
       const assetsWithCounts = data.map(asset => ({
         ...asset,
         useful_count: asset.useful_votes?.length || 0,
-        is_useful: false // Will be updated with user's vote status
+        is_useful: user ? asset.useful_votes?.some(vote => vote.user_id === user.id) : false
       }))
       setAssets(assetsWithCounts)
     }
@@ -53,7 +55,7 @@ export default function HomePage() {
 
   useEffect(() => {
     fetchAssets(activeTab)
-  }, [activeTab])
+  }, [activeTab, user])
 
   const handleTabChange = (tab: '24h' | 'week' | 'all') => {
     setActiveTab(tab)
@@ -121,15 +123,15 @@ export default function HomePage() {
 }
 
 function AssetCard({ asset, onUpdate }: { asset: Asset; onUpdate: () => void }) {
+  const { user } = useAuth()
+
   const handleUseful = async () => {
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    
     if (!user) {
-      // Show auth modal or redirect to login
       alert('Please sign in to vote')
       return
     }
+
+    const supabase = createClient()
 
     if (asset.is_useful) {
       await supabase
@@ -176,11 +178,12 @@ function AssetCard({ asset, onUpdate }: { asset: Asset; onUpdate: () => void }) 
             </div>
             <button
               onClick={handleUseful}
+              disabled={!user}
               className={`flex items-center space-x-1 px-3 py-1 rounded-full text-sm font-medium transition-colors ${
                 asset.is_useful
                   ? 'bg-green-100 text-green-800'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
+              } ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               <span>👍</span>
               <span>{asset.useful_count}</span>
