@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase'
 
 interface AuthModalProps {
@@ -13,6 +13,10 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
+
+  useEffect(() => {
+    console.log('AuthModal isOpen:', isOpen)
+  }, [isOpen])
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -47,6 +51,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600"
+            type="button"
           >
             ✕
           </button>

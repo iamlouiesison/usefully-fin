@@ -12,6 +12,11 @@ export default function Navigation() {
     await signOut()
   }
 
+  const handleSignInClick = () => {
+    console.log('Sign in button clicked')
+    setShowAuthModal(true)
+  }
+
   return (
     <>
       <nav className="bg-white shadow-sm border-b border-gray-200">
@@ -45,8 +50,9 @@ export default function Navigation() {
                 </div>
               ) : (
                 <button
-                  onClick={() => setShowAuthModal(true)}
-                  className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
+                  onClick={handleSignInClick}
+                  className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors cursor-pointer"
+                  type="button"
                 >
                   Sign In
                 </button>
