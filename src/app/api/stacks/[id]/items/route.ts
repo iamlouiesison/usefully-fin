@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase'
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerSupabaseClient()
+    // Parse the stack id from the URL
+    const url = new URL(request.url)
+    const idMatch = url.pathname.match(/\/api\/stacks\/([^/]+)\/items/)
+    const stackId = idMatch ? idMatch[1] : null
+
+    if (!stackId) {
+      return NextResponse.json({ error: 'Stack ID is required in the URL' }, { status: 400 })
+    }
+
+    const supabase = await createServerSupabaseClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
@@ -27,7 +33,7 @@ export async function POST(
     const { data: stack } = await supabase
       .from('stacks')
       .select('owner_id')
-      .eq('id', params.id)
+      .eq('id', stackId)
       .single()
 
     if (!stack || stack.owner_id !== user.id) {
@@ -42,7 +48,7 @@ export async function POST(
       const { error } = await supabase
         .from('stack_items')
         .insert({
-          stack_id: params.id,
+          stack_id: stackId,
           asset_id
         })
 
@@ -60,7 +66,7 @@ export async function POST(
       const { error } = await supabase
         .from('stack_items')
         .delete()
-        .eq('stack_id', params.id)
+        .eq('stack_id', stackId)
         .eq('asset_id', asset_id)
 
       if (error) {

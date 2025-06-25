@@ -15,7 +15,7 @@ type Review = Database['public']['Tables']['reviews']['Row'] & {
   users: Database['public']['Tables']['users']['Row']
 }
 
-export default function AssetPage({ params }: { params: { id: string } }) {
+export default function ({ params }: { params: { id: string } }) {
   const [asset, setAsset] = useState<Asset | null>(null)
   const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(true)
