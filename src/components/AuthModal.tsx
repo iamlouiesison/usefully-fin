@@ -35,7 +35,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     if (error) {
       setMessage(error.message)
     } else {
-      setMessage('Check your email for the sign-in link!')
+      setMessage('Check your email for the sign-in link! The link will expire in 1 hour.')
     }
     
     setLoading(false)
@@ -92,9 +92,12 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           </button>
         </form>
 
-        <p className="text-sm text-gray-600 mt-4 text-center">
-          We'll send you a magic link to sign in securely.
-        </p>
+        <div className="mt-4 text-sm text-gray-600 text-center space-y-2">
+          <p>We'll send you a magic link to sign in securely.</p>
+          <p className="text-xs text-gray-500">
+            ⚠️ Magic links expire after 1 hour. If your link expires, just request a new one.
+          </p>
+        </div>
       </div>
     </div>
   )
